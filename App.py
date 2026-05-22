@@ -20,8 +20,8 @@ supabase = create_client(
 # =========================================================
 
 st.set_page_config(
-    page_title="InvoiceFlow AI",
-    page_icon="📄",
+    page_title="RAGHAV RESERV - Invoice Submission",
+    page_icon="🏢",
     layout="wide"
 )
 
@@ -32,13 +32,13 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* BACKGROUND */
+/* MAIN BACKGROUND */
 
 .stApp {
     background: linear-gradient(
         135deg,
-        #eef2ff,
-        #f8fafc
+        #f1f5f9,
+        #e0f2fe
     );
 }
 
@@ -52,19 +52,55 @@ st.markdown("""
 /* HEADINGS */
 
 h1, h2, h3 {
-    color: #111827;
+    color: #0f172a;
     font-family: sans-serif;
+}
+
+/* HERO SECTION */
+
+.hero-section {
+
+    background: linear-gradient(
+        135deg,
+        #0f172a,
+        #1e3a8a
+    );
+
+    padding: 40px;
+    border-radius: 24px;
+    color: white;
+    margin-bottom: 30px;
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.hero-title {
+
+    font-size: 42px;
+    font-weight: 700;
+}
+
+.hero-subtitle {
+
+    font-size: 18px;
+    opacity: 0.9;
 }
 
 /* CARDS */
 
 .section-card {
+
     background: white;
+
     padding: 24px;
-    border-radius: 18px;
+
+    border-radius: 20px;
+
     margin-bottom: 24px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    border: 1px solid #e5e7eb;
+
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+
+    border: 1px solid #e2e8f0;
 }
 
 /* BUTTON */
@@ -74,15 +110,21 @@ h1, h2, h3 {
     background: linear-gradient(
         90deg,
         #2563eb,
-        #7c3aed
+        #0ea5e9
     );
 
     color: white;
+
     border: none;
+
     border-radius: 12px;
+
     padding: 12px 24px;
+
     font-size: 16px;
+
     font-weight: 600;
+
     width: 100%;
 }
 
@@ -91,7 +133,7 @@ h1, h2, h3 {
     background: linear-gradient(
         90deg,
         #1d4ed8,
-        #6d28d9
+        #0284c7
     );
 
     color: white;
@@ -106,22 +148,6 @@ h1, h2, h3 {
     border-radius: 10px !important;
 }
 
-/* SUCCESS BOX */
-
-.stSuccess {
-
-    border-radius: 12px;
-}
-
-/* TABLE */
-
-div[data-testid="stDataFrame"] {
-
-    background: white;
-    border-radius: 14px;
-    padding: 10px;
-}
-
 /* METRIC CARDS */
 
 .metric-card {
@@ -129,53 +155,69 @@ div[data-testid="stDataFrame"] {
     background: linear-gradient(
         135deg,
         #2563eb,
-        #7c3aed
+        #0ea5e9
     );
 
     color: white;
+
     padding: 20px;
-    border-radius: 18px;
+
+    border-radius: 20px;
+
     text-align: center;
+
+    box-shadow: 0 8px 20px rgba(37,99,235,0.2);
 }
 
-/* STATUS COLORS */
+/* DATAFRAME */
 
-.pending {
-    color: #b45309;
-    font-weight: 700;
+div[data-testid="stDataFrame"] {
+
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 10px;
 }
 
-.approved {
-    color: #15803d;
-    font-weight: 700;
-}
+/* MANDATORY NOTE */
 
-.rejected {
-    color: #dc2626;
-    font-weight: 700;
+.mandatory-note {
+
+    color: red;
+
+    font-size: 14px;
+
+    margin-bottom: 10px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# HEADER
+# LANDING PAGE HEADER
 # =========================================================
 
 st.markdown("""
-# 📄 InvoiceFlow AI
+<div class="hero-section">
 
-### AI-Powered Invoice Processing & Tracking Platform
-""")
+<div class="hero-title">
+🏢 RAGHAV RESERV
+</div>
 
-st.markdown("---")
+<div class="hero-subtitle">
+Enterprise Invoice Submission & Approval Portal
+</div>
+
+</div>
+""", unsafe_allow_html=True)
 
 # =========================================================
-# SIDEBAR PORTAL
+# PORTAL SELECTION
 # =========================================================
 
-portal = st.sidebar.selectbox(
-    "Select Portal",
+portal = st.selectbox(
+    "Choose Portal",
     [
         "Vendor Portal",
         "Admin Portal"
@@ -190,9 +232,14 @@ is_admin = False
 
 if portal == "Admin Portal":
 
-    st.sidebar.subheader("🔐 Admin Login")
+    st.markdown(
+        '<div class="section-card">',
+        unsafe_allow_html=True
+    )
 
-    admin_password = st.sidebar.text_input(
+    st.subheader("🔐 Admin Login")
+
+    admin_password = st.text_input(
         "Enter Admin Password",
         type="password"
     )
@@ -201,17 +248,22 @@ if portal == "Admin Portal":
 
         is_admin = True
 
-        st.sidebar.success(
+        st.success(
             "Admin Access Granted"
         )
 
     else:
 
         st.warning(
-            "Enter admin password"
+            "Please enter admin password"
         )
 
         st.stop()
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
 
 # =========================================================
 # KPI CARDS
@@ -301,15 +353,11 @@ if portal == "Vendor Portal":
 
     uploaded_file = None
 
-    # CAMERA OPTION
-
     if upload_option == "📷 Capture From Camera":
 
         uploaded_file = st.camera_input(
             "Take Invoice Photo"
         )
-
-    # FILE OPTION
 
     else:
 
@@ -324,30 +372,41 @@ if portal == "Vendor Portal":
             ]
         )
 
-    # PREVIEW
-
     if uploaded_file:
 
-        st.success("File uploaded successfully")
+        st.success(
+            "File uploaded successfully"
+        )
 
         if hasattr(uploaded_file, "type"):
 
-            if uploaded_file.type.startswith("image"):
+            if uploaded_file.type.startswith(
+                "image"
+            ):
 
                 st.image(
                     uploaded_file,
                     width=350
                 )
 
-            elif uploaded_file.type == "application/pdf":
+            elif uploaded_file.type == (
+                "application/pdf"
+            ):
 
-                st.info("PDF uploaded successfully")
+                st.info(
+                    "PDF uploaded successfully"
+                )
 
             else:
 
-                st.info("Document uploaded successfully")
+                st.info(
+                    "Document uploaded successfully"
+                )
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
 
     # =====================================================
     # VENDOR DETAILS
@@ -360,26 +419,31 @@ if portal == "Vendor Portal":
 
     st.subheader("🏢 Vendor Details")
 
+    st.markdown(
+        '<div class="mandatory-note">* Mandatory Fields</div>',
+        unsafe_allow_html=True
+    )
+
     c1, c2 = st.columns(2)
 
     with c1:
 
         vendor_name = st.text_input(
-            "Vendor Name"
+            "Vendor Name *"
         )
 
         vendor_email = st.text_input(
-            "Vendor Email"
+            "Vendor Email *"
         )
 
         invoice_number = st.text_input(
-            "Invoice Number"
+            "Invoice Number *"
         )
 
     with c2:
 
         invoice_date = st.date_input(
-            "Invoice Date"
+            "Invoice Date *"
         )
 
         category = st.selectbox(
@@ -394,7 +458,10 @@ if portal == "Vendor Portal":
             ]
         )
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
 
     # =====================================================
     # FINANCIAL DETAILS
@@ -425,15 +492,18 @@ if portal == "Vendor Portal":
             step=1.0
         )
 
-    # TOTAL
-
-    total_amount = invoice_amount + gst_amount
+    total_amount = (
+        invoice_amount + gst_amount
+    )
 
     st.success(
         f"✅ Total Amount Including GST: ₹ {total_amount:,.2f}"
     )
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
 
     # =====================================================
     # SUBMIT BUTTON
@@ -444,85 +514,120 @@ if portal == "Vendor Portal":
     )
 
     # =====================================================
-    # SAVE DATA
+    # VALIDATION + SAVE
     # =====================================================
 
     if submit_button:
 
-        try:
+        missing_fields = []
 
-            file_url = ""
+        if not vendor_name:
 
-            if uploaded_file:
-
-                unique_name = (
-                    f"{int(time.time())}_"
-                    f"{uploaded_file.name}"
-                )
-
-                supabase.storage.from_(
-                    "invoice-files"
-                ).upload(
-                    unique_name,
-                    uploaded_file.getvalue()
-                )
-
-                file_url = (
-                    f"{SUPABASE_URL}/storage/v1/object/public/"
-                    f"invoice-files/{unique_name}"
-                )
-
-            data = {
-
-                "vendor_name":
-                    vendor_name,
-
-                "vendor_email":
-                    vendor_email,
-
-                "invoice_number":
-                    invoice_number,
-
-                "invoice_date":
-                    str(invoice_date),
-
-                "category":
-                    category,
-
-                "invoice_amount":
-                    invoice_amount,
-
-                "gst_amount":
-                    gst_amount,
-
-                "total_amount":
-                    total_amount,
-
-                "status":
-                    "Pending",
-
-                "file_url":
-                    file_url
-            }
-
-            supabase.table(
-                "invoices"
-            ).insert(
-                data
-            ).execute()
-
-            st.success(
-                "✅ Invoice Submitted Successfully"
+            missing_fields.append(
+                "Vendor Name"
             )
 
-        except Exception as e:
+        if not vendor_email:
+
+            missing_fields.append(
+                "Vendor Email"
+            )
+
+        if not invoice_number:
+
+            missing_fields.append(
+                "Invoice Number"
+            )
+
+        if not invoice_date:
+
+            missing_fields.append(
+                "Invoice Date"
+            )
+
+        if missing_fields:
 
             st.error(
-                f"Submission Error: {e}"
+                "Missing Mandatory Fields: "
+                + ", ".join(missing_fields)
             )
 
+        else:
+
+            try:
+
+                file_url = ""
+
+                if uploaded_file:
+
+                    unique_name = (
+                        f"{int(time.time())}_"
+                        f"{uploaded_file.name}"
+                    )
+
+                    supabase.storage.from_(
+                        "invoice-files"
+                    ).upload(
+                        unique_name,
+                        uploaded_file.getvalue()
+                    )
+
+                    file_url = (
+                        f"{SUPABASE_URL}/storage/v1/object/public/"
+                        f"invoice-files/{unique_name}"
+                    )
+
+                data = {
+
+                    "vendor_name":
+                        vendor_name,
+
+                    "vendor_email":
+                        vendor_email,
+
+                    "invoice_number":
+                        invoice_number,
+
+                    "invoice_date":
+                        str(invoice_date),
+
+                    "category":
+                        category,
+
+                    "invoice_amount":
+                        invoice_amount,
+
+                    "gst_amount":
+                        gst_amount,
+
+                    "total_amount":
+                        total_amount,
+
+                    "status":
+                        "Pending",
+
+                    "file_url":
+                        file_url
+                }
+
+                supabase.table(
+                    "invoices"
+                ).insert(
+                    data
+                ).execute()
+
+                st.success(
+                    "✅ Invoice Submitted Successfully"
+                )
+
+            except Exception as e:
+
+                st.error(
+                    f"Submission Error: {e}"
+                )
+
     # =====================================================
-    # VENDOR TRACKING
+    # VENDOR TABLE
     # =====================================================
 
     st.markdown("---")
@@ -588,7 +693,9 @@ if portal == "Vendor Portal":
 
 if is_admin:
 
-    st.subheader("🛠 Admin Invoice Dashboard")
+    st.subheader(
+        "🛠 Admin Invoice Dashboard"
+    )
 
     try:
 
@@ -719,5 +826,5 @@ if is_admin:
 st.markdown("---")
 
 st.caption(
-    "InvoiceFlow  • Enterprise Invoice Automation Platform"
+    "RAGHAV RESERV • Enterprise Invoice Submission Portal"
 )
