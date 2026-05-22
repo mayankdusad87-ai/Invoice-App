@@ -1,253 +1,231 @@
 import streamlit as st
 from supabase import create_client
-from openai import OpenAI
-import base64
-import json
+import pandas as pd
 import time
 
-# =====================================
+# =========================================
 # CONFIG
-# =====================================
+# =========================================
 
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-client = OpenAI(api_key=OPENAI_API_KEY)
+supabase = create_client(
+    SUPABASE_URL,
+    SUPABASE_KEY
+)
 
-# =====================================
-# PAGE SETTINGS
-# =====================================
+# =========================================
+# PAGE
+# =========================================
 
 st.set_page_config(
-    page_title="AI Invoice Upload System",
+    page_title="Invoice Management System",
     layout="wide"
 )
 
-st.title("📄 AI Invoice Upload System")
+st.title("📄 Invoice Management System")
 
 st.markdown("---")
 
-# =====================================
-# FORM
-# =====================================
+# =========================================
+# FILE UPLOAD SECTION
+# =========================================
 
-st.subheader("Upload Invoice")
-
-vendor_name = st.text_input("Vendor Name")
+st.subheader("📤 Upload Invoice")
 
 uploaded_file = st.file_uploader(
-    "Upload Invoice",
-    type=["png", "jpg", "jpeg", "pdf"]
+    "Upload Invoice File",
+    type=["pdf", "png", "jpg", "jpeg", "docx"]
 )
-
-amount = st.text_input("Total Amount")
-
-gst_amount = st.text_input("GST Amount")
-
-# =====================================
-# FILE PREVIEW
-# =====================================
-
-file_bytes = None
 
 if uploaded_file:
 
-    file_bytes = uploaded_file.read()
-
     st.success("File uploaded successfully")
 
-    # IMAGE PREVIEW
-    if uploaded_file.type.startswith("image"):
+# =========================================
+# VENDOR DETAILS
+# =========================================
 
-        st.image(file_bytes, width=300)
+st.markdown("## 🏢 Vendor Details")
 
-    # PDF PREVIEW
-    elif uploaded_file.type == "application/pdf":
+col1, col2 = st.columns(2)
 
-        st.info("PDF uploaded successfully")
+with col1:
 
-# =====================================
-# AI EXTRACTION
-# =====================================
+    vendor_name = st.text_input(
+        "Vendor Name"
+    )
 
-if uploaded_file and st.button("Extract Using AI"):
+    invoice_number = st.text_input(
+        "Invoice Number"
+    )
 
-    try:
+with col2:
 
-        with st.spinner("Extracting invoice data using AI..."):
+    invoice_date = st.date_input(
+        "Invoice Date"
+    )
 
-            # Only allow images for AI extraction
-            if uploaded_file.type.startswith("image"):
+    category = st.selectbox(
+        "Category",
+        [
+            "Raw Material",
+            "Transport",
+            "Labour",
+            "Equipment",
+            "Other"
+        ]
+    )
 
-                base64_image = base64.b64encode(file_bytes).decode("utf-8")
+# =========================================
+# FINANCIAL DETAILS
+# =========================================
 
-                response = client.chat.completions.create(
-                    model="gpt-4.1-mini",
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": """
-Extract:
-- total amount
-- GST amount
+st.markdown("## 💰 Financial Details")
 
-Return ONLY valid JSON.
+f1, f2 = st.columns(2)
 
-Example:
-{
-  "amount": "50000",
-  "gst_amount": "9000"
-}
-"""
-                                },
-                                {
-                                    "type": "image_url",
-                                    "image_url": {
-                                        "url": f"data:image/jpeg;base64,{base64_image}"
-                                    }
-                                }
-                            ]
-                        }
-                    ],
-                    max_tokens=300
-                )
+with f1:
 
-                ai_result = response.choices[0].message.content
+    invoice_amount = st.number_input(
+        "Invoice Amount",
+        min_value=0.0,
+        step=1.0
+    )
 
-                st.subheader("AI Extraction Result")
+with f2:
 
-                st.code(ai_result)
+    gst_amount = st.number_input(
+        "GST Amount",
+        min_value=0.0,
+        step=1.0
+    )
 
-                # Try auto parsing
-                try:
+# AUTO CALCULATION
 
-                    cleaned = ai_result.replace("```json", "").replace("```", "")
+total_amount = invoice_amount + gst_amount
 
-                    data = json.loads(cleaned)
+st.info(
+    f"### Total Amount Including GST: ₹ {total_amount:,.2f}"
+)
 
-                    if "amount" in data:
-                        amount = data["amount"]
-
-                    if "gst_amount" in data:
-                        gst_amount = data["gst_amount"]
-
-                    st.success("AI data extracted successfully")
-
-                except:
-                    st.warning("AI response could not be auto-filled")
-
-            else:
-
-                st.warning("AI extraction currently supports image files only")
-
-    except Exception as e:
-
-        st.error(f"AI Extraction Error: {str(e)}")
-
-# =====================================
-# SUBMIT INVOICE
-# =====================================
+# =========================================
+# SUBMIT
+# =========================================
 
 if st.button("Submit Invoice"):
 
     try:
 
-        image_url = ""
+        file_url = ""
 
-        # Upload file to Supabase Storage
+        # Upload file
         if uploaded_file:
 
-            uploaded_file.seek(0)
+            unique_name = (
+                f"{int(time.time())}_"
+                f"{uploaded_file.name}"
+            )
 
-            unique_name = f"{int(time.time())}_{uploaded_file.name}"
-
-            supabase.storage.from_("invoice-files").upload(
+            supabase.storage.from_(
+                "invoice-files"
+            ).upload(
                 unique_name,
                 uploaded_file.getvalue()
             )
 
-            image_url = (
+            file_url = (
                 f"{SUPABASE_URL}/storage/v1/object/public/"
                 f"invoice-files/{unique_name}"
             )
 
-        # Save invoice data
-        invoice_data = {
+        # Insert data
+        data = {
+
             "vendor_name": vendor_name,
-            "amount": amount,
+
+            "invoice_number": invoice_number,
+
+            "invoice_date": str(invoice_date),
+
+            "category": category,
+
+            "invoice_amount": invoice_amount,
+
             "gst_amount": gst_amount,
+
+            "total_amount": total_amount,
+
             "status": "Pending",
-            "image_url": image_url
+
+            "file_url": file_url
         }
 
-        supabase.table("invoices").insert(invoice_data).execute()
+        supabase.table(
+            "invoices"
+        ).insert(data).execute()
 
-        st.success("✅ Invoice submitted successfully")
+        st.success(
+            "✅ Invoice Submitted Successfully"
+        )
 
     except Exception as e:
 
-        st.error(f"Submission Error: {str(e)}")
+        st.error(f"Error: {e}")
 
-# =====================================
-# VIEW INVOICES
-# =====================================
+# =========================================
+# TRACKING TABLE
+# =========================================
 
 st.markdown("---")
 
-st.subheader("Submitted Invoices")
+st.subheader("📋 Invoice Tracking")
 
 try:
 
-    rows = supabase.table("invoices").select("*").order(
+    rows = supabase.table(
+        "invoices"
+    ).select("*").order(
         "id",
         desc=True
     ).execute()
 
     if rows.data:
 
+        table_data = []
+
         for row in rows.data:
 
-            with st.container():
+            table_data.append({
 
-                col1, col2 = st.columns([2, 1])
+                "Invoice Number":
+                    row["invoice_number"],
 
-                with col1:
+                "Vendor":
+                    row["vendor_name"],
 
-                    st.write(f"### {row['vendor_name']}")
-                    st.write(f"💰 Amount: ₹{row['amount']}")
-                    st.write(f"🧾 GST: ₹{row['gst_amount']}")
-                    st.write(f"📌 Status: {row['status']}")
+                "Amount":
+                    row["total_amount"],
 
-                with col2:
+                "Status":
+                    row["status"]
 
-                    if row["image_url"]:
+            })
 
-                        if (
-                            row["image_url"].endswith(".png")
-                            or row["image_url"].endswith(".jpg")
-                            or row["image_url"].endswith(".jpeg")
-                        ):
+        df = pd.DataFrame(table_data)
 
-                            st.image(row["image_url"], width=200)
-
-                        else:
-
-                            st.link_button(
-                                "View PDF",
-                                row["image_url"]
-                            )
-
-                st.divider()
+        st.dataframe(
+            df,
+            use_container_width=True
+        )
 
     else:
 
-        st.info("No invoices submitted yet")
+        st.info(
+            "No invoices submitted yet"
+        )
 
 except Exception as e:
 
-    st.error(f"Database Error: {str(e)}")
+    st.error(f"Database Error: {e}")
