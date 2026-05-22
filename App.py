@@ -138,7 +138,7 @@ div[data-testid="stDataFrame"] {
     text-align: center;
 }
 
-/* STATUS BADGES */
+/* STATUS COLORS */
 
 .pending {
     color: #b45309;
@@ -169,6 +169,49 @@ st.markdown("""
 """)
 
 st.markdown("---")
+
+# =========================================================
+# SIDEBAR PORTAL
+# =========================================================
+
+portal = st.sidebar.selectbox(
+    "Select Portal",
+    [
+        "Vendor Portal",
+        "Admin Portal"
+    ]
+)
+
+# =========================================================
+# ADMIN LOGIN
+# =========================================================
+
+is_admin = False
+
+if portal == "Admin Portal":
+
+    st.sidebar.subheader("🔐 Admin Login")
+
+    admin_password = st.sidebar.text_input(
+        "Enter Admin Password",
+        type="password"
+    )
+
+    if admin_password == "admin123":
+
+        is_admin = True
+
+        st.sidebar.success(
+            "Admin Access Granted"
+        )
+
+    else:
+
+        st.warning(
+            "Enter admin password"
+        )
+
+        st.stop()
 
 # =========================================================
 # KPI CARDS
@@ -231,311 +274,443 @@ with k3:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # =========================================================
-# UPLOAD SECTION
+# VENDOR PORTAL
 # =========================================================
 
-st.markdown(
-    '<div class="section-card">',
-    unsafe_allow_html=True
-)
+if portal == "Vendor Portal":
 
-st.subheader("📤 Upload Invoice")
+    # =====================================================
+    # UPLOAD SECTION
+    # =====================================================
 
-upload_option = st.radio(
-    "Choose Upload Method",
-    [
-        "📷 Capture From Camera",
-        "📁 Upload File"
-    ],
-    horizontal=True
-)
-
-uploaded_file = None
-
-# CAMERA OPTION
-
-if upload_option == "📷 Capture From Camera":
-
-    uploaded_file = st.camera_input(
-        "Take Invoice Photo"
+    st.markdown(
+        '<div class="section-card">',
+        unsafe_allow_html=True
     )
 
-# FILE OPTION
+    st.subheader("📤 Upload Invoice")
 
-else:
-
-    uploaded_file = st.file_uploader(
-        "Upload Invoice",
-        type=[
-            "pdf",
-            "png",
-            "jpg",
-            "jpeg",
-            "docx"
-        ]
+    upload_option = st.radio(
+        "Choose Upload Method",
+        [
+            "📷 Capture From Camera",
+            "📁 Upload File"
+        ],
+        horizontal=True
     )
 
-# PREVIEW
+    uploaded_file = None
 
-if uploaded_file:
+    # CAMERA OPTION
 
-    st.success("File uploaded successfully")
+    if upload_option == "📷 Capture From Camera":
 
-    if hasattr(uploaded_file, "type"):
+        uploaded_file = st.camera_input(
+            "Take Invoice Photo"
+        )
 
-        if uploaded_file.type.startswith("image"):
+    # FILE OPTION
 
-            st.image(
-                uploaded_file,
-                width=350
+    else:
+
+        uploaded_file = st.file_uploader(
+            "Upload Invoice",
+            type=[
+                "pdf",
+                "png",
+                "jpg",
+                "jpeg",
+                "docx"
+            ]
+        )
+
+    # PREVIEW
+
+    if uploaded_file:
+
+        st.success("File uploaded successfully")
+
+        if hasattr(uploaded_file, "type"):
+
+            if uploaded_file.type.startswith("image"):
+
+                st.image(
+                    uploaded_file,
+                    width=350
+                )
+
+            elif uploaded_file.type == "application/pdf":
+
+                st.info("PDF uploaded successfully")
+
+            else:
+
+                st.info("Document uploaded successfully")
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # =====================================================
+    # VENDOR DETAILS
+    # =====================================================
+
+    st.markdown(
+        '<div class="section-card">',
+        unsafe_allow_html=True
+    )
+
+    st.subheader("🏢 Vendor Details")
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+
+        vendor_name = st.text_input(
+            "Vendor Name"
+        )
+
+        vendor_email = st.text_input(
+            "Vendor Email"
+        )
+
+        invoice_number = st.text_input(
+            "Invoice Number"
+        )
+
+    with c2:
+
+        invoice_date = st.date_input(
+            "Invoice Date"
+        )
+
+        category = st.selectbox(
+            "Category",
+            [
+                "Raw Material",
+                "Transport",
+                "Labour",
+                "Equipment",
+                "Professional Services",
+                "Other"
+            ]
+        )
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # =====================================================
+    # FINANCIAL DETAILS
+    # =====================================================
+
+    st.markdown(
+        '<div class="section-card">',
+        unsafe_allow_html=True
+    )
+
+    st.subheader("💰 Financial Details")
+
+    f1, f2 = st.columns(2)
+
+    with f1:
+
+        invoice_amount = st.number_input(
+            "Invoice Amount",
+            min_value=0.0,
+            step=1.0
+        )
+
+    with f2:
+
+        gst_amount = st.number_input(
+            "GST Amount",
+            min_value=0.0,
+            step=1.0
+        )
+
+    # TOTAL
+
+    total_amount = invoice_amount + gst_amount
+
+    st.success(
+        f"✅ Total Amount Including GST: ₹ {total_amount:,.2f}"
+    )
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # =====================================================
+    # SUBMIT BUTTON
+    # =====================================================
+
+    submit_button = st.button(
+        "🚀 Submit Invoice"
+    )
+
+    # =====================================================
+    # SAVE DATA
+    # =====================================================
+
+    if submit_button:
+
+        try:
+
+            file_url = ""
+
+            if uploaded_file:
+
+                unique_name = (
+                    f"{int(time.time())}_"
+                    f"{uploaded_file.name}"
+                )
+
+                supabase.storage.from_(
+                    "invoice-files"
+                ).upload(
+                    unique_name,
+                    uploaded_file.getvalue()
+                )
+
+                file_url = (
+                    f"{SUPABASE_URL}/storage/v1/object/public/"
+                    f"invoice-files/{unique_name}"
+                )
+
+            data = {
+
+                "vendor_name":
+                    vendor_name,
+
+                "vendor_email":
+                    vendor_email,
+
+                "invoice_number":
+                    invoice_number,
+
+                "invoice_date":
+                    str(invoice_date),
+
+                "category":
+                    category,
+
+                "invoice_amount":
+                    invoice_amount,
+
+                "gst_amount":
+                    gst_amount,
+
+                "total_amount":
+                    total_amount,
+
+                "status":
+                    "Pending",
+
+                "file_url":
+                    file_url
+            }
+
+            supabase.table(
+                "invoices"
+            ).insert(
+                data
+            ).execute()
+
+            st.success(
+                "✅ Invoice Submitted Successfully"
             )
 
-        elif uploaded_file.type == "application/pdf":
+        except Exception as e:
 
-            st.info("PDF uploaded successfully")
+            st.error(
+                f"Submission Error: {e}"
+            )
 
-        else:
+    # =====================================================
+    # VENDOR TRACKING
+    # =====================================================
 
-            st.info("Document uploaded successfully")
+    st.markdown("---")
 
-st.markdown("</div>", unsafe_allow_html=True)
-
-# =========================================================
-# VENDOR DETAILS
-# =========================================================
-
-st.markdown(
-    '<div class="section-card">',
-    unsafe_allow_html=True
-)
-
-st.subheader("🏢 Vendor Details")
-
-c1, c2 = st.columns(2)
-
-with c1:
-
-    vendor_name = st.text_input(
-        "Vendor Name"
-    )
-
-    invoice_number = st.text_input(
-        "Invoice Number"
-    )
-
-with c2:
-
-    invoice_date = st.date_input(
-        "Invoice Date"
-    )
-
-    category = st.selectbox(
-        "Category",
-        [
-            "Raw Material",
-            "Transport",
-            "Labour",
-            "Equipment",
-            "Professional Services",
-            "Other"
-        ]
-    )
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# =========================================================
-# FINANCIAL DETAILS
-# =========================================================
-
-st.markdown(
-    '<div class="section-card">',
-    unsafe_allow_html=True
-)
-
-st.subheader("💰 Financial Details")
-
-f1, f2 = st.columns(2)
-
-with f1:
-
-    invoice_amount = st.number_input(
-        "Invoice Amount",
-        min_value=0.0,
-        step=1.0
-    )
-
-with f2:
-
-    gst_amount = st.number_input(
-        "GST Amount",
-        min_value=0.0,
-        step=1.0
-    )
-
-# TOTAL
-
-total_amount = invoice_amount + gst_amount
-
-st.success(
-    f"✅ Total Amount Including GST: ₹ {total_amount:,.2f}"
-)
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# =========================================================
-# SUBMIT BUTTON
-# =========================================================
-
-submit_button = st.button(
-    "🚀 Submit Invoice"
-)
-
-# =========================================================
-# SAVE DATA
-# =========================================================
-
-if submit_button:
+    st.subheader("📋 My Invoices")
 
     try:
 
-        file_url = ""
-
-        if uploaded_file:
-
-            unique_name = (
-                f"{int(time.time())}_"
-                f"{uploaded_file.name}"
-            )
-
-            supabase.storage.from_(
-                "invoice-files"
-            ).upload(
-                unique_name,
-                uploaded_file.getvalue()
-            )
-
-            file_url = (
-                f"{SUPABASE_URL}/storage/v1/object/public/"
-                f"invoice-files/{unique_name}"
-            )
-
-        data = {
-
-            "vendor_name":
-                vendor_name,
-
-            "invoice_number":
-                invoice_number,
-
-            "invoice_date":
-                str(invoice_date),
-
-            "category":
-                category,
-
-            "invoice_amount":
-                invoice_amount,
-
-            "gst_amount":
-                gst_amount,
-
-            "total_amount":
-                total_amount,
-
-            "status":
-                "Pending",
-
-            "file_url":
-                file_url
-        }
-
-        supabase.table(
+        rows = supabase.table(
             "invoices"
-        ).insert(
-            data
+        ).select("*").eq(
+            "vendor_email",
+            vendor_email
+        ).order(
+            "id",
+            desc=True
         ).execute()
 
-        st.success(
-            "✅ Invoice Submitted Successfully"
-        )
+        if rows.data:
+
+            table_data = []
+
+            for row in rows.data:
+
+                table_data.append({
+
+                    "Invoice Number":
+                        row["invoice_number"],
+
+                    "Amount":
+                        f"₹ {row['total_amount']:,.2f}",
+
+                    "Status":
+                        row["status"]
+
+                })
+
+            df = pd.DataFrame(
+                table_data
+            )
+
+            st.dataframe(
+                df,
+                use_container_width=True,
+                hide_index=True
+            )
+
+        else:
+
+            st.info(
+                "No invoices submitted yet"
+            )
 
     except Exception as e:
 
         st.error(
-            f"Submission Error: {e}"
+            f"Database Error: {e}"
         )
 
 # =========================================================
-# TRACKING TABLE
+# ADMIN PORTAL
 # =========================================================
 
-st.markdown("---")
+if is_admin:
 
-st.subheader("📋 Invoice Tracking")
+    st.subheader("🛠 Admin Invoice Dashboard")
 
-try:
+    try:
 
-    rows = supabase.table(
-        "invoices"
-    ).select("*").order(
-        "id",
-        desc=True
-    ).execute()
+        rows = supabase.table(
+            "invoices"
+        ).select("*").order(
+            "id",
+            desc=True
+        ).execute()
 
-    if rows.data:
+        if rows.data:
 
-        table_data = []
+            for row in rows.data:
 
-        for row in rows.data:
+                st.markdown(
+                    '<div class="section-card">',
+                    unsafe_allow_html=True
+                )
 
-            status = row["status"]
+                c1, c2, c3, c4 = st.columns(
+                    [2, 2, 2, 2]
+                )
 
-            table_data.append({
+                with c1:
 
-                "Invoice Number":
-                    row["invoice_number"],
+                    st.write(
+                        f"### {row['invoice_number']}"
+                    )
 
-                "Vendor":
-                    row["vendor_name"],
+                    st.write(
+                        f"Vendor: {row['vendor_name']}"
+                    )
 
-                "Date":
-                    row["invoice_date"],
+                    st.write(
+                        f"Email: {row['vendor_email']}"
+                    )
 
-                "Amount":
-                    f"₹ {row['invoice_amount']:,.2f}",
+                with c2:
 
-                "GST":
-                    f"₹ {row['gst_amount']:,.2f}",
+                    st.write(
+                        f"💰 Amount: ₹ {row['invoice_amount']:,.2f}"
+                    )
 
-                "Total":
-                    f"₹ {row['total_amount']:,.2f}",
+                    st.write(
+                        f"🧾 GST: ₹ {row['gst_amount']:,.2f}"
+                    )
 
-                "Status":
-                    status
+                    st.write(
+                        f"💵 Total: ₹ {row['total_amount']:,.2f}"
+                    )
 
-            })
+                with c3:
 
-        df = pd.DataFrame(
-            table_data
+                    st.write(
+                        f"📌 Status: {row['status']}"
+                    )
+
+                    st.write(
+                        f"📅 Date: {row['invoice_date']}"
+                    )
+
+                    st.write(
+                        f"📂 Category: {row['category']}"
+                    )
+
+                with c4:
+
+                    if row["file_url"]:
+
+                        st.link_button(
+                            "View Invoice",
+                            row["file_url"]
+                        )
+
+                    status = st.selectbox(
+                        "Change Status",
+                        [
+                            "Pending",
+                            "Approved",
+                            "Rejected"
+                        ],
+                        key=f"status_{row['id']}"
+                    )
+
+                    if st.button(
+                        "Update Status",
+                        key=f"update_{row['id']}"
+                    ):
+
+                        supabase.table(
+                            "invoices"
+                        ).update({
+
+                            "status": status
+
+                        }).eq(
+                            "id",
+                            row["id"]
+                        ).execute()
+
+                        st.success(
+                            "Status Updated"
+                        )
+
+                        st.rerun()
+
+                st.markdown(
+                    "</div>",
+                    unsafe_allow_html=True
+                )
+
+        else:
+
+            st.info(
+                "No invoices found"
+            )
+
+    except Exception as e:
+
+        st.error(
+            f"Database Error: {e}"
         )
-
-        st.dataframe(
-            df,
-            use_container_width=True,
-            hide_index=True
-        )
-
-    else:
-
-        st.info(
-            "No invoices submitted yet"
-        )
-
-except Exception as e:
-
-    st.error(
-        f"Database Error: {e}"
-    )
 
 # =========================================================
 # FOOTER
@@ -544,5 +719,5 @@ except Exception as e:
 st.markdown("---")
 
 st.caption(
-    "InvoiceFlow AI • Enterprise Invoice Automation Platform"
+    "InvoiceFlow  • Enterprise Invoice Automation Platform"
 )
