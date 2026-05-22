@@ -40,18 +40,22 @@ if "page" not in st.session_state:
 st.markdown("""
 <style>
 
-/* MAIN APP */
+/* =====================================================
+MAIN APP
+===================================================== */
 
 .stApp {
 
     background: linear-gradient(
         135deg,
-        #f1f5f9,
+        #eef4ff,
         #dbeafe
     );
 }
 
-/* REMOVE STREAMLIT MENU */
+/* =====================================================
+HIDE STREAMLIT DEFAULTS
+===================================================== */
 
 #MainMenu {
     visibility: hidden;
@@ -61,7 +65,9 @@ footer {
     visibility: hidden;
 }
 
-/* MAIN CONTAINER */
+/* =====================================================
+MAIN CONTAINER
+===================================================== */
 
 .block-container {
 
@@ -69,7 +75,35 @@ footer {
     padding-bottom: 2rem;
 }
 
-/* HERO */
+/* =====================================================
+HEADINGS
+===================================================== */
+
+h1, h2, h3 {
+
+    color: #0f172a;
+
+    font-family: sans-serif;
+
+    font-weight: 700;
+}
+
+/* =====================================================
+LABELS
+===================================================== */
+
+label {
+
+    color: #111827 !important;
+
+    font-weight: 700 !important;
+
+    font-size: 15px !important;
+}
+
+/* =====================================================
+HERO SECTION
+===================================================== */
 
 .hero {
 
@@ -79,7 +113,7 @@ footer {
         #1e3a8a
     );
 
-    padding: 50px;
+    padding: 45px;
 
     border-radius: 28px;
 
@@ -87,28 +121,49 @@ footer {
 
     color: white;
 
-    margin-bottom: 40px;
+    margin-bottom: 35px;
 
     box-shadow: 0 12px 30px rgba(0,0,0,0.15);
 }
 
 .hero-title {
 
-    font-size: 52px;
+    font-size: 50px;
 
-    font-weight: 700;
+    font-weight: 800;
 
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .hero-subtitle {
 
     font-size: 20px;
 
-    opacity: 0.9;
+    opacity: 0.92;
 }
 
-/* PORTAL CARDS */
+/* =====================================================
+SECTION CARDS
+===================================================== */
+
+.card {
+
+    background: white;
+
+    padding: 28px;
+
+    border-radius: 22px;
+
+    margin-bottom: 24px;
+
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+
+    border: 1px solid #dbeafe;
+}
+
+/* =====================================================
+PORTAL CARDS
+===================================================== */
 
 .portal-card {
 
@@ -122,36 +177,21 @@ footer {
 
     box-shadow: 0 8px 25px rgba(0,0,0,0.08);
 
-    border: 1px solid #e2e8f0;
+    border: 1px solid #dbeafe;
 
     margin-bottom: 20px;
 }
 
-/* SECTION CARDS */
-
-.section-card {
-
-    background: white;
-
-    padding: 24px;
-
-    border-radius: 20px;
-
-    margin-bottom: 24px;
-
-    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-
-    border: 1px solid #e2e8f0;
-}
-
-/* BUTTONS */
+/* =====================================================
+BUTTONS
+===================================================== */
 
 .stButton > button {
 
     background: linear-gradient(
         90deg,
         #2563eb,
-        #0ea5e9
+        #0284c7
     );
 
     color: white;
@@ -164,7 +204,7 @@ footer {
 
     font-size: 16px;
 
-    font-weight: 600;
+    font-weight: 700;
 
     width: 100%;
 }
@@ -174,60 +214,73 @@ footer {
     background: linear-gradient(
         90deg,
         #1d4ed8,
-        #0284c7
+        #0369a1
     );
 
     color: white;
 }
 
-/* METRIC CARD */
-
-.metric-card {
-
-    background: linear-gradient(
-        135deg,
-        #2563eb,
-        #0ea5e9
-    );
-
-    color: white;
-
-    padding: 20px;
-
-    border-radius: 20px;
-
-    text-align: center;
-
-    box-shadow: 0 8px 20px rgba(37,99,235,0.2);
-}
-
-/* INPUTS */
+/* =====================================================
+INPUTS
+===================================================== */
 
 .stTextInput input,
 .stNumberInput input,
-.stDateInput input {
+.stDateInput input,
+.stSelectbox div[data-baseweb="select"] {
 
-    border-radius: 12px !important;
+    border-radius: 14px !important;
+
+    border: 1px solid #cbd5e1 !important;
+
+    background-color: #ffffff !important;
+
+    color: #111827 !important;
+
+    font-weight: 500 !important;
 }
 
-/* TABLE */
+/* =====================================================
+RADIO
+===================================================== */
+
+div[role="radiogroup"] {
+
+    background: #f8fafc;
+
+    padding: 12px;
+
+    border-radius: 14px;
+
+    border: 1px solid #dbeafe;
+}
+
+/* =====================================================
+DATAFRAME
+===================================================== */
 
 div[data-testid="stDataFrame"] {
 
     background: white;
 
-    border-radius: 16px;
+    border-radius: 18px;
 
     padding: 10px;
+
+    border: 1px solid #dbeafe;
 }
 
-/* NOTE */
+/* =====================================================
+NOTE
+===================================================== */
 
 .note {
 
-    color: red;
+    color: #dc2626;
 
     font-size: 14px;
+
+    font-weight: 700;
 }
 
 </style>
@@ -263,8 +316,7 @@ if st.session_state.page == "landing":
         <h2>📤 Vendor Portal</h2>
 
         <p>
-        Submit invoices, upload documents,
-        and track approval status.
+        Submit invoices and track approvals
         </p>
 
         </div>
@@ -284,8 +336,7 @@ if st.session_state.page == "landing":
         <h2>🛠 Admin Portal</h2>
 
         <p>
-        Review invoices, approve/reject submissions,
-        and manage vendors.
+        Review and approve invoices
         </p>
 
         </div>
@@ -303,13 +354,11 @@ if st.session_state.page == "landing":
 
 elif st.session_state.page == "vendor":
 
-    st.button(
-        "⬅ Back to Home",
-        on_click=lambda:
-        st.session_state.update(
-            {"page": "landing"}
-        )
-    )
+    if st.button("⬅ Back to Home"):
+
+        st.session_state.page = "landing"
+
+        st.rerun()
 
     st.markdown("""
     <div class="hero">
@@ -326,13 +375,12 @@ elif st.session_state.page == "vendor":
     """, unsafe_allow_html=True)
 
     # =====================================================
-    # EMAIL LOGIN
+    # EMAIL
     # =====================================================
 
-    st.markdown(
-        '<div class="section-card">',
-        unsafe_allow_html=True
-    )
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+
+    st.subheader("👤 Vendor Access")
 
     vendor_email = st.text_input(
         "Vendor Email *"
@@ -343,19 +391,13 @@ elif st.session_state.page == "vendor":
         unsafe_allow_html=True
     )
 
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # =====================================================
-    # UPLOAD SECTION
+    # UPLOAD
     # =====================================================
 
-    st.markdown(
-        '<div class="section-card">',
-        unsafe_allow_html=True
-    )
+    st.markdown('<div class="card">', unsafe_allow_html=True)
 
     st.subheader("📤 Upload Invoice")
 
@@ -412,19 +454,13 @@ elif st.session_state.page == "vendor":
                     "Document uploaded successfully"
                 )
 
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # =====================================================
-    # VENDOR DETAILS
+    # DETAILS
     # =====================================================
 
-    st.markdown(
-        '<div class="section-card">',
-        unsafe_allow_html=True
-    )
+    st.markdown('<div class="card">', unsafe_allow_html=True)
 
     st.subheader("🏢 Vendor Details")
 
@@ -458,19 +494,13 @@ elif st.session_state.page == "vendor":
             ]
         )
 
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # =====================================================
-    # FINANCIAL DETAILS
+    # FINANCE
     # =====================================================
 
-    st.markdown(
-        '<div class="section-card">',
-        unsafe_allow_html=True
-    )
+    st.markdown('<div class="card">', unsafe_allow_html=True)
 
     st.subheader("💰 Financial Details")
 
@@ -500,10 +530,7 @@ elif st.session_state.page == "vendor":
         f"✅ Total Amount Including GST: ₹ {total_amount:,.2f}"
     )
 
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # =====================================================
     # SUBMIT
@@ -619,7 +646,7 @@ elif st.session_state.page == "vendor":
                 )
 
     # =====================================================
-    # VENDOR TABLE
+    # MY INVOICES
     # =====================================================
 
     st.markdown("---")
@@ -680,18 +707,16 @@ elif st.session_state.page == "vendor":
         )
 
 # =========================================================
-# ADMIN LOGIN PAGE
+# ADMIN LOGIN
 # =========================================================
 
 elif st.session_state.page == "admin_login":
 
-    st.button(
-        "⬅ Back to Home",
-        on_click=lambda:
-        st.session_state.update(
-            {"page": "landing"}
-        )
-    )
+    if st.button("⬅ Back to Home"):
+
+        st.session_state.page = "landing"
+
+        st.rerun()
 
     st.markdown("""
     <div class="hero">
@@ -706,11 +731,6 @@ elif st.session_state.page == "admin_login":
 
     </div>
     """, unsafe_allow_html=True)
-
-    st.markdown(
-        '<div class="section-card">',
-        unsafe_allow_html=True
-    )
 
     admin_password = st.text_input(
         "Enter Admin Password",
@@ -731,24 +751,17 @@ elif st.session_state.page == "admin_login":
                 "Incorrect Password"
             )
 
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
-
 # =========================================================
 # ADMIN DASHBOARD
 # =========================================================
 
 elif st.session_state.page == "admin_dashboard":
 
-    st.button(
-        "⬅ Logout",
-        on_click=lambda:
-        st.session_state.update(
-            {"page": "landing"}
-        )
-    )
+    if st.button("⬅ Logout"):
+
+        st.session_state.page = "landing"
+
+        st.rerun()
 
     st.markdown("""
     <div class="hero">
@@ -777,10 +790,7 @@ elif st.session_state.page == "admin_dashboard":
 
             for row in rows.data:
 
-                st.markdown(
-                    '<div class="section-card">',
-                    unsafe_allow_html=True
-                )
+                st.markdown('<div class="card">', unsafe_allow_html=True)
 
                 c1, c2, c3, c4 = st.columns(
                     [2, 2, 2, 2]
@@ -869,10 +879,7 @@ elif st.session_state.page == "admin_dashboard":
 
                         st.rerun()
 
-                st.markdown(
-                    "</div>",
-                    unsafe_allow_html=True
-                )
+                st.markdown('</div>', unsafe_allow_html=True)
 
         else:
 
